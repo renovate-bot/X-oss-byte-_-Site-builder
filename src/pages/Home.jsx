@@ -1,7 +1,106 @@
+import { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const Home = () => {
+    const siteTitleRef = useRef(null);
+    const displayNameRef = useRef(null);
+    const wpEmailRef = useRef(null);
+
+    const navigate = useNavigate();
+
+    let [siteTitle, setSiteTitle] = useState('');
+    let [displayName, setDisplayName] = useState('');
+    let [wpAdminUsername, setWpAdminUsername] = useState('');
+    let [wpAdminEmail, setWpAdminEmail] = useState('');
+    let [wpAdminPassword, setWpAdminPassword] = useState('');
+    let [centerLocation, setCenterLocation] = useState('');
+    let [installWooCommerce, setInstallWooCommerce] = useState(false);
+    let [installYoast, setInstallYoast] = useState(false);
+
+    const KinstaAPIUrl = 'https://api.kinsta.com/v2';
+
+    const createSite = (e) => {
+        e.preventDefault();
+
+        checkSiteTitle();
+        checkDisplayName();
+        checkWpAdminEmail();
+
+        if (siteTitle.length > 4 && displayName.length > 4 && wpAdminUsername !== "" && wpAdminEmail !== "" && wpAdminPassword !== "" && centerLocation !== "") {
+            localStorage.clear();
+            const createSiteWithKinstaAPI = async () => {
+                const resp = await fetch(
+                    `${KinstaAPIUrl}/sites`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${process.env.REACT_APP_KINSTA_API_KEY}`
+                        },
+                        body: JSON.stringify({
+                            company: `${process.env.REACT_APP_KINSTA_COMPANY_ID}`,
+                            display_name: displayName,
+                            region: centerLocation,
+                            install_mode: 'new',
+                            is_subdomain_multisite: false,
+                            admin_email: wpAdminEmail,
+                            admin_password: wpAdminPassword,
+                            admin_user: wpAdminUsername,
+                            is_multisite: false,
+                            site_title: siteTitle,
+                            woocommerce: false,
+                            wordpressseo: false,
+                            wp_language: 'en_US'
+                        })
+                    }
+                );
+
+                const data = await resp.json();
+                let newData = { operationId: data.operation_id, site_name: displayName };
+                localStorage.setItem('state', JSON.stringify(newData));
+                navigate('/details');
+            }
+
+            createSiteWithKinstaAPI();
+
+            setSiteTitle('');
+            setDisplayName('');
+            setWpAdminEmail('');
+            setWpAdminPassword('');
+            setInstallWooCommerce(false);
+            setWpAdminUsername('');
+            setCenterLocation('');
+            setInstallYoast(false);
+        }
+    }
+
+    const checkSiteTitle = () => {
+        if (siteTitle.length < 4) {
+            siteTitleRef.current.style.display = 'block';
+        } else {
+            siteTitleRef.current.style.display = 'none';
+        }
+    }
+
+    const checkDisplayName = () => {
+        if (displayName.length < 4) {
+            displayNameRef.current.style.display = 'block';
+        } else {
+            displayNameRef.current.style.display = 'none';
+        }
+    }
+
+    const checkWpAdminEmail = () => {
+        let regex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
+        if (!wpAdminEmail.match(regex)) {
+            wpEmailRef.current.style.display = 'block';
+        } else {
+            wpEmailRef.current.style.display = 'none';
+        }
+    }
 
     return (
         <div className="app-container">
@@ -13,40 +112,40 @@ const Home = () => {
                         This is a React app that uses the Kinsta API to create WordPress sites, without needing to access MyKinsta dashboard.
                     </p>
                 </div>
-                <form>
+                <form onSubmit={createSite}>
                     <div className="form-container">
                         <div className="input-div">
                             <label>Site name</label>
                             <span>Helps you identify your site. Only used in MyKinsta and temporary domain</span>
-                            <input type="text" className="form-control" />
-                            <span className='error-message'>Ensure this has more than 4 characters</span>
+                            <input type="text" className="form-control" value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
+                            <span className='error-message' ref={displayNameRef}>Ensure this has more than 4 characters</span>
                         </div>
                         <div className="input-div">
-                            <label> WordPress site title</label>
+                            <label>WordPress site title</label>
                             <span>Appears across the top of every page of the site. You can always change it later.</span>
-                            <input type="text" className="form-control" />
-                            <span className='error-message'>Ensure this has more than 4 characters</span>
+                            <input type="text" className="form-control" value={siteTitle} onChange={(e) => setSiteTitle(e.target.value)} />
+                            <span className='error-message' ref={siteTitleRef}>Ensure this has more than 4 characters</span>
                         </div>
                         <div className="input-flex">
                             <div className="input-div">
                                 <label>WordPress admin username</label>
-                                <input type="text" className="form-control" />
+                                <input type="text" className="form-control" value={wpAdminUsername} onChange={(e) => setWpAdminUsername(e.target.value)} />
                             </div>
                             <div className="input-div">
                                 <label>WordPress admin email</label>
-                                <input type="email" className="form-control" />
-                                <span className='error-message'>Ensure this is a valid email</span>
+                                <input type="email" className="form-control" value={wpAdminEmail} onChange={(e) => setWpAdminEmail(e.target.value)} />
+                                <span className='error-message' ref={wpEmailRef}>Ensure this is a valid email</span>
                             </div>
                         </div>
                         <div className="input-div">
                             <label>WordPress admin password</label>
                             <span>Ensure you rember this password as it is what you'll use to log into WP-admin</span>
-                            <input type="text" className="form-control" />
+                            <input type="text" className="form-control" value={wpAdminPassword} onChange={(e) => setWpAdminPassword(e.target.value)} />
                         </div>
                         <div className="input-div">
                             <label>Data center location</label>
                             <span>Allows you to place your website in a geographical location closest to your visitors.</span>
-                            <select className="form-control">
+                            <select className="form-control" value={centerLocation} onChange={(e) => setCenterLocation(e.target.value)}>
                                 <option value=""></option>
                                 <option value="asia-east1">Changhua County, Taiwan</option>
                                 <option value="asia-east2">Hong Kong</option>
@@ -87,11 +186,11 @@ const Home = () => {
                         </div>
                         <div className="checkbox-flex">
                             <div className="checkbox-input">
-                                <input type="checkbox" />
+                                <input type="checkbox" checked={installWooCommerce} onChange={() => setInstallWooCommerce(!installWooCommerce)} />
                                 <label>Install WooCommerce</label>
                             </div>
                             <div className="checkbox-input">
-                                <input type="checkbox" />
+                                <input type="checkbox" checked={installYoast} onChange={() => setInstallYoast(!installYoast)} />
                                 <label>Install Yoast SEO</label>
                             </div>
                         </div>
