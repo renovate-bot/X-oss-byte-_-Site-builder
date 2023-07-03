@@ -59,7 +59,7 @@ const Home = () => {
                 );
 
                 const data = await resp.json();
-                let newData = { operationId: data.operation_id, site_name: displayName };
+                let newData = { operationId: data.operation_id, display_name: displayName };
                 localStorage.setItem('state', JSON.stringify(newData));
                 navigate('/details');
             }
@@ -115,7 +115,7 @@ const Home = () => {
                 <form onSubmit={createSite}>
                     <div className="form-container">
                         <div className="input-div">
-                            <label>Site name</label>
+                            <label>Display name</label>
                             <span>Helps you identify your site. Only used in MyKinsta and temporary domain</span>
                             <input type="text" className="form-control" value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
                             <span className='error-message' ref={displayNameRef}>Ensure this has more than 4 characters</span>

@@ -51,11 +51,11 @@ const Details = () => {
                 <div className="services">
                     <p className="description">If message above indicates that "Operation has successfully finished", use the links below to access your WP admin and the site itself.</p>
                     <div className="details">
-                        <a href={`http://${stateData.site_name}.kinsta.cloud/wp-admin/`} target="_blank" rel="noreferrer" className='detail-link'>
+                        <a href={`http://${stateData.display_name}.kinsta.cloud/wp-admin/`} target="_blank" rel="noreferrer" className='detail-link'>
                             <p>Open WordPress admin</p>
                             <FiExternalLink />
                         </a>
-                        <a href={`http://${stateData.site_name}.kinsta.cloud/`} target="_blank" rel="noreferrer" className='detail-link'>
+                        <a href={`http://${stateData.display_name}.kinsta.cloud/`} target="_blank" rel="noreferrer" className='detail-link'>
                             <p>Open URL</p>
                             <FiExternalLink />
                         </a>
