@@ -24,7 +24,7 @@ const Details = () => {
         );
 
         const data = await resp.json();
-        setOperationData({ ...data, site_name: stateData.site_name });
+        setOperationData(data);
     }
 
     if (stateData) {
