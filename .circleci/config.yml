@@ -1,0 +1,40 @@
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: cimg/node:20.5.0
+    steps:
+      - checkout # Check out the code from the repository
+      - run:
+          name: Install Dependencies
+          command: npm install
+      - run:
+          name: Compile Source Code
+          command: npm run build
+      - run:
+          name: Run Unit Tests
+          command: npm test
+      - run:
+          name: Run ESLint
+          command: npm run lint
+      - run:
+          name: Deploy to Kinsta
+          command: |
+            curl -i -X POST \
+              https://api.kinsta.com/v2/applications/deployments \
+              -H "Authorization: Bearer $API_KEY" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "app_id": "'"$APP_ID"'",
+                "branch": "main"
+              }'
+
+workflows:
+  version: 2
+  build-test-lint:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only:
+                - main
