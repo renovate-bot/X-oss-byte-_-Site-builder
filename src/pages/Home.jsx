@@ -5,13 +5,13 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const Home = () => {
-    const siteTitleRef = useRef(null);
+    const siteNameRef = useRef(null);
     const displayNameRef = useRef(null);
     const wpEmailRef = useRef(null);
 
     const navigate = useNavigate();
 
-    let [siteTitle, setSiteTitle] = useState('');
+    let [siteName, setSiteName] = useState('');
     let [displayName, setDisplayName] = useState('');
     let [wpAdminUsername, setWpAdminUsername] = useState('');
     let [wpAdminEmail, setWpAdminEmail] = useState('');
@@ -25,11 +25,11 @@ const Home = () => {
     const createSite = (e) => {
         e.preventDefault();
 
-        checkSiteTitle();
+        checkSiteName();
         checkDisplayName();
         checkWpAdminEmail();
 
-        if (siteTitle.length > 4 && displayName.length > 4 && wpAdminUsername !== "" && wpAdminEmail !== "" && wpAdminPassword !== "" && centerLocation !== "") {
+        if (siteName.length > 4 && displayName.length > 4 && wpAdminUsername !== "" && wpAdminEmail !== "" && wpAdminPassword !== "" && centerLocation !== "") {
             localStorage.clear();
             const createSiteWithKinstaAPI = async () => {
                 const resp = await fetch(
@@ -50,7 +50,7 @@ const Home = () => {
                             admin_password: wpAdminPassword,
                             admin_user: wpAdminUsername,
                             is_multisite: false,
-                            site_title: siteTitle,
+                            site_title: siteName,
                             woocommerce: false,
                             wordpressseo: false,
                             wp_language: 'en_US'
@@ -59,14 +59,14 @@ const Home = () => {
                 );
 
                 const data = await resp.json();
-                let newData = { operationId: data.operation_id, display_name: displayName };
+                let newData = { operationId: data.operation_id, site_name: displayName };
                 localStorage.setItem('state', JSON.stringify(newData));
                 navigate('/details');
             }
 
             createSiteWithKinstaAPI();
 
-            setSiteTitle('');
+            setSiteName('');
             setDisplayName('');
             setWpAdminEmail('');
             setWpAdminPassword('');
@@ -77,11 +77,11 @@ const Home = () => {
         }
     }
 
-    const checkSiteTitle = () => {
-        if (siteTitle.length < 4) {
-            siteTitleRef.current.style.display = 'block';
+    const checkSiteName = () => {
+        if (siteName.length < 4) {
+            siteNameRef.current.style.display = 'block';
         } else {
-            siteTitleRef.current.style.display = 'none';
+            siteNameRef.current.style.display = 'none';
         }
     }
 
@@ -115,16 +115,15 @@ const Home = () => {
                 <form onSubmit={createSite}>
                     <div className="form-container">
                         <div className="input-div">
-                            <label>Display name</label>
-                            <span>Helps you identify your site. Only used in MyKinsta and temporary domain</span>
-                            <input type="text" className="form-control" value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
-                            <span className='error-message' ref={displayNameRef}>Ensure this has more than 4 characters</span>
+                            <label htmlFor="siteName">Site name</label>
+                            <span>Helps you identify your site. Only used in MyKinsta</span>
+                            <input type="text" className="form-control" value={siteName} onChange={(e) => setSiteName(e.target.value)} />
+                            <span className='error-message' ref={siteNameRef}>Ensure this has more than 4 characters</span>
                         </div>
                         <div className="input-div">
-                            <label>WordPress site title</label>
-                            <span>Appears across the top of every page of the site. You can always change it later.</span>
-                            <input type="text" className="form-control" value={siteTitle} onChange={(e) => setSiteTitle(e.target.value)} />
-                            <span className='error-message' ref={siteTitleRef}>Ensure this has more than 4 characters</span>
+                            <label>Display name</label>
+                            <input type="text" className="form-control" value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
+                            <span className='error-message' ref={displayNameRef}>Ensure this has more than 4 characters</span>
                         </div>
                         <div className="input-flex">
                             <div className="input-div">

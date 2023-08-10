@@ -4,7 +4,7 @@
 
 Learn how to use the Kinsta API to make HTTP requests using the Fetch API in a React application.
 
-Read the [full article]().
+Read the [full article](https://kinsta.com/blog/wordpress-api/).
 
 ## Installation
 1. Clone or fork the repository.
